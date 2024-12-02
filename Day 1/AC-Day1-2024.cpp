@@ -53,12 +53,7 @@ int main() {
 
     //Add elements from col2 to a dictionary and update their frequencies.
     for (auto el : col2){
-        if (dic.find(el)!=dic.end()){
-            dic[el]+=1;
-        }
-        else{
-            dic[el]=1;
-        }
+        dic[el]++;
     }
 
     int similarity=0;
