@@ -100,9 +100,9 @@ int doWalk(int r, int c, char d, std::vector<std::vector<char>>& map){
     return totalSpots;
 }
 
-int numberOfLoops(const int r0, const int c0, const char d0, std::vector<std::vector<char>>& map, const std::vector<std::vector<char>>& originalMap){
+int numberOfLoops(const int r0, const int c0, const char d0, std::vector<std::vector<char>>& map){
     int numLoops=0;
-    int numXs = map.size()*map[0].size();
+    int mapSize = map.size()*map[0].size();
 
     // This is incredibly ugly, but works.
     for (int row=0; row<map.size(); ++row){
@@ -113,15 +113,14 @@ int numberOfLoops(const int r0, const int c0, const char d0, std::vector<std::ve
             }
             // If we are here this is part of the path. Let's put a tentative obstacle here
             map[row][col]='o';
-            bool obstacleFound = false;
-            // Similar to doWalk
+            // Similar to doWalk, but we can't reuse it here since it will mark locations as visited, which we don't want anymore.
             int r = r0;
             int c = c0;
             char d = d0;
             int dx = 0;
             int dy = -1;
-            int it = numXs;
-            while(!reachEnd(r,c,d, originalMap)){
+            int it = mapSize+1;
+            while(!reachEnd(r,c,d, map)){
                 // If we have run more squares than the entire grid, then this is clearly a loop.
                 // Maybe this is too conservative and is slowing down performance. Worst case this is O(n^4).
                 if (it==0){
@@ -129,7 +128,7 @@ int numberOfLoops(const int r0, const int c0, const char d0, std::vector<std::ve
                     break;
                 }
                 //Next move will hit an obstacle?
-                if (originalMap[r+dy][c+dx]=='#' || map[r+dy][c+dx]=='o'){
+                if (map[r+dy][c+dx]=='#' || map[r+dy][c+dx]=='o'){
                     //Then turn right
                     turnRight(d);
                     dy = directions[d].first;
@@ -183,14 +182,16 @@ int main() {
     // First Part
     int r0 = 0;
     int c0 = 0;
+    char d0 = '^';
     bool found = false;
 
     // We need to find the starting position first
     for (int row=0; row<guardMap.size(); ++row){
         for (int col=0; col<guardMap[0].size(); ++col){
-            if (guardMap[row][col]=='^'){
+            if (guardMap[row][col]=='^' || guardMap[row][col]=='v' || guardMap[row][col]=='<' || guardMap[row][col]=='>'){
                 r0 = row;
                 c0 = col;
+                d0 = guardMap[row][col];
                 found = true;
                 break;
             }
@@ -202,16 +203,14 @@ int main() {
 
     int r = r0;
     int c = c0;
-    char d = '^';
+    char d = d0;
     int totalSpots = doWalk(r, c, d, guardMap);
 
     std::cout << totalSpots << std::endl;
 
     // Second Part
 
-    std::vector<std::vector<char>> originalGuardMap = guardMap;
-
-    int numLoops = numberOfLoops(r0, c0, d, guardMap, originalGuardMap);
+    int numLoops = numberOfLoops(r0, c0, d0, guardMap);
 
     std::cout << numLoops << std::endl;
 
