@@ -33,8 +33,6 @@ int main() {
 
     // Read the file line by line
     while (std::getline(file, line)) {
-        // Skip empty lines
-        if (line.empty()) continue;
 
         // Parse Button A
         if (line.find("Button A:") != std::string::npos) {
